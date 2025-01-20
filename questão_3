@@ -1,0 +1,56 @@
+import random
+import sys
+palavras = r"c:\\Users\\Regig\Documents\\100 palavras.txt" #puxando o arquivo
+contador = 0
+with open(palavras, "r", encoding= "UTF-16") as arquivo:
+     for linha in arquivo:
+        palavra = linha.strip().lower() #palavra escolhida
+        if 5 <= len(palavra) <= 8: #vendo se a palavra é aceita e fazendo contado do tamanho
+            contador += 1
+            if random.randint(1, contador) == 1:
+                palavra_sorteada = palavra
+lent = (len(palavra_sorteada)) #quantidade de caracteres
+print ("o numero de caracteres é:",(lent))
+verde = "\033[92m"         #as cores usadas
+amarelo = "\033[93m"
+vermelho = "\033[91m"
+cinza = "\033[90m"  
+reset = "\033[0m"
+resultado = []
+letras_usadas = list(palavra_sorteada)
+# vou esta colocando 6 tentativas ao usuario
+for tentativa in range(6):
+    tentativa_palavra = input(f"Tentativa {tentativa + 1}/6 - Digite uma palavra de {lent} caracteres: ").lower()
+    
+    # verificação do tamanho da palavra
+    escolhido_caracteres = len(tentativa_palavra)
+    
+    if escolhido_caracteres != lent:
+        print(f"A palavra deve ter exatamente {lent} caracteres.")
+        continue  # vai volva ao inicio do loop
+    # comparação das palavras
+    resultado = []
+    letras_usadas = list(palavra_sorteada)
+    # acertos verde (verde)
+    for i in range(lent):
+        if tentativa_palavra[i] == palavra_sorteada[i]:
+            resultado.append(f"{verde}{tentativa_palavra[i]}{reset}")
+            letras_usadas[i] = None  # marca como usada
+        else:
+            resultado.append(None)  # marcador temporário para caracteres restantes
+    # acertos no lugar errado (amarelo)
+    for i in range(lent):
+        if resultado[i] is None:  # Se a posição não foi marcada como verde
+            if tentativa_palavra[i] in letras_usadas:
+                resultado[i] = f"{amarelo}{tentativa_palavra[i]}{reset}"
+                letras_usadas[letras_usadas.index(tentativa_palavra[i])] = None  # marca como usada
+            else:
+                resultado[i] = f"{cinza}{tentativa_palavra[i]}{reset}"  # Letras ausentes ficam cinza
+    # Exibindo o resultado com as cores no terminal
+    print("Resultado: " + "".join(resultado))
+    # Verifica se a palavra do usuario esta certa
+    if tentativa_palavra == palavra_sorteada:
+        print("voce acertou a palavra")
+        break
+else:
+    print(f"Você não conseguiu acerta a palavra, a resposta era: {palavra_sorteada}")
