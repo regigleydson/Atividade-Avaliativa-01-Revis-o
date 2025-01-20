@@ -1,0 +1,71 @@
+import sys
+import json
+from tabulate import tabulate
+
+def verificar_intervalo(partes):
+    for i in partes:
+        if int(i) < 0 or int(i) > 255
+            print("Número inválido")
+            sys.exit()
+def converter_mascara(mascara):
+    binario = "1" * mascara + "0" * (32 - mascara)
+    return [int(binario[i:i + 8], 2) for i in range(0, 32, 8)]
+def endereco_rede(ip, mascara):
+    return [ip[i] & mascara[i] for i in range(4)]
+def endereco_broadcast(rede, mascara):
+    invertida = [~m & 0xFF for m in mascara]
+    return [rede[i] | invertida[i] for i in range(4)]
+def primeiro_host(rede):
+    return rede[:-1] + [rede[-1] + 1]
+def ultimo_host(broadcast):
+    return broadcast[:-1] + [broadcast[-1] - 1]
+def hosts_validos(mascara):
+    bits_host = 32 - mascara
+    return (2 ** bits_host) - 2
+def formato_decimal_binario(mascara):
+    return '.'.join(map(str, mascara)), ''.join(f'{octeto:08b}' for octeto in mascara)
+def validar_entrada(entrada):
+    partes = entrada.split(".")
+    if len(partes) != 4 or not all(part.isdigit() for part in partes):
+        print("Endereço inválido.")
+        sys.exit()
+    verificar_intervalo(partes)
+    return list(map(int, partes))
+# Entrada do usuário
+ip = validar_entrada(input("Digite o endereço IP (formato: x.x.x.x): "))
+mascara_inicial = int(input("Digite a máscara de rede inicial (CIDR, ex.: 24): "))
+mascara_final = int(input("Digite a máscara de rede final (CIDR, ex.: 30): "))
+# Validando intervalo de máscara
+if not (0 <= mascara_inicial <= 32) or not (0 <= mascara_final <= 32) or mascara_inicial > mascara_final:
+    print("Máscara(s) inválida(s).")
+    sys.exit()
+# Calculando as informações para cada máscara no intervalo
+resultados = []
+for mascara in range(mascara_inicial, mascara_final + 1):
+    mascara_decimal = converter_mascara(mascara)
+    rede = endereco_rede(ip, mascara_decimal)
+    broadcast = endereco_broadcast(rede, mascara_decimal)
+    primeiro = primeiro_host(rede)
+    ultimo = ultimo_host(broadcast)
+    mascara_formatada_decimal, mascara_formatada_binario = formato_decimal_binario(mascara_decimal)
+    info = {
+        "Máscara CIDR": f"/{mascara}",
+        "Endereço de Rede": '.'.join(map(str, rede)),
+        "Primeiro Host": '.'.join(map(str, primeiro)),
+        "Último Host": '.'.join(map(str, ultimo)),
+        "Endereço de Broadcast": '.'.join(map(str, broadcast)),
+        "Máscara Decimal": mascara_formatada_decimal,
+        "Máscara Binário": mascara_formatada_binario,
+        "Número de Hosts Válidos": hosts_validos(mascara)
+    }
+    resultados.append(info)
+# Exibindo os dados formatados
+print(tabulate(resultados, headers="keys", tablefmt="grid"))
+# Salvando em arquivo JSON
+nome_arquivo = "subredes_resultado.json"
+try:
+    with open(nome_arquivo, 'x') as f:
+        json.dump(resultados, f, indent=4)
+    print(f"\nResultados salvos em {nome_arquivo}")
+except FileExistsError:
+    print(f"\nArquivo '{nome_arquivo}' já existe. Não foi sobrescrito.")
