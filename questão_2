@@ -1,0 +1,52 @@
+import time
+import hashlib
+from tabulate import tabulate
+def findNonce(dataToHash, bitsToBeZero):
+    nonce = 0
+    target = 2 ** (256 - bitsToBeZero)  # diz o alvo com base de em bits a serem zero
+    começa_time = time.time()  # tempo inicial
+    while True:
+        # coloca os dados com o nonce
+        combinação_data = dataToHash + nonce.to_bytes(4, 'big')
+        # vai calcula o hash
+        hash_result = hashlib.sha256(combinação_data).hexdigest()
+        # verifica se o hash esta correto
+        if int(hash_result, 16) < target:
+            break  # sair do loop quando encontra o nonce
+        
+        nonce += 1  # acrescenta o nonce
+    elapsed_time = time.time() - começa_time  # Tempo
+    return nonce, elapsed_time  # retorna o nonce e o tempo
+# pedi as entradas do usuario
+data_string = input("Digite o dado para hash: ")
+bitsToBeZero = int(input("Digite a quantidade de bits inicial que deve ser zero: "))
+# vai começa a mineração com a entrada do usuario
+dataToHashUser = data_string.encode('utf-8')  # vai Converte a entrada do usuário para bytes
+nonceUser, tempoUser = findNonce(dataToHashUser, bitsToBeZero)
+# mostra o resultado pra o usuario
+print(f"Resultado para entrada do usuario: Texto: '{data_string}', Bits: {bitsToBeZero}, Nonce: {nonceUser}, Tempo: {round(tempoUser, 2)} s")
+# parti princial ja foi, agora é implementação dos pre fixado
+# Lista de combinações dos textos e dos  bits
+texts_and_bits = [
+    ("Esse é fácil", 8),
+    ("Esse é fácil", 10),
+    ("Esse é fácil", 15),
+    ("Texto maior muda o tempo?", 8),
+    ("Texto maior muda o tempo?", 10),
+    ("Texto maior muda o tempo?", 15),
+    ("É possível calcular esse?", 18),
+    ("É possível calcular esse?", 19),
+    ("É possível calcular esse?", 20)
+]
+# lista com os resultados
+results = []
+# Começa a mineração com a entrada pre-fixada
+for text, bits in texts_and_bits:
+    dataToHash = text.encode('utf-8')  # transfoma o texto em bytes
+    nonce, elapsed_time = findNonce(dataToHash, bits)  # vai chama a função original
+    results.append([text, bits, nonce, round(elapsed_time, 2)])  # coloca o resultado na lista
+# Adiciona os resultados da entrada do usuário à lista
+results.append([data_string, bitsToBeZero, nonceUser, round(tempoUser, 2)])
+# Exibe a tabela formatada com tabulate
+headers = ["Texto a validar", "Bits em zero", "Nonce", "Tempo (s)"]
+print(tabulate(results, headers=headers, tablefmt="grid"))
