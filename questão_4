@@ -1,0 +1,37 @@
+import os
+def xor_encrypt_decrypt(source_file, password, destination_file):
+    # Verifica se o arquivo de destino já existe
+    if os.path.exists(destination_file):
+        print(f"O arquivo do destino '{destination_file}' já possui outro. Escolha um nome diferente pra usar.")
+        return
+    try:
+        src_file = open(source_file, 'rb')  # vai abri o arquivo de origem em modo leitura
+        dest_file = open(destination_file, 'wb')  # vai abri o arquivo de destino em modo escrita
+
+        password_length = len(password)
+        password_bytes = [ord(char) for char in password]  # Converte a senha em valores ASCII
+        # Lê o arquivo de origem de byte a byte
+        for index, byte in enumerate(src_file.read()):
+            # Aplica XOR entre o byte do arquivo de origem e o byte da palavra-passe
+            xor_byte = byte ^ password_bytes[index % password_length]
+            dest_file.write(bytes([xor_byte]))  # Escreve o byte resultante no arquivo de destino
+        print(f"Arquivo '{source_file}' foi criptografado e salvo como '{destination_file}'.")
+    except FileNotFoundError:
+        print("Erro ao acessar o arquivo de origem.")
+    except Exception as e:
+def xor_encrypt_decrypt(source_file, password, destination_file):
+            src_file.close()
+        if 'dest_file' in locals():
+            dest_file.close()
+if _name_ == "_main_":  # Correção feita aqui
+if __name__ == "__main__":  # Correção feita aqui
+    # Lê os parâmetros do usuário
+    source_file = input("diga o arquivo de origem: ")
+    password = input("dia: ")
+    destination_file = input("Digite um nome de arquivo de destino: ")
+    source_file = input("Digite o arquivo de origem: ")
+    password = input("Digite a palavra-passe: ")
+    destination_file = input("Digite o nome de arquivo de destino: ")
+
+    # Chama a função de criptografia/descriptografia
+    xor_encrypt_decrypt(source_file, password, destination_file)
